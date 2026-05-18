@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -19,5 +19,5 @@ class FitnessEventType(str, Enum):
 class FitnessEvent(BaseModel):
     event_type: FitnessEventType
     payload: dict
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     processed: bool = False

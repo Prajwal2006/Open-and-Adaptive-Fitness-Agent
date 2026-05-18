@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.models.orm_models import ScheduleState, WorkoutSession
@@ -18,7 +18,7 @@ class SchedulerEngine:
                 current_position=0,
                 consecutive_misses=0,
                 shift_offset=0,
-                updated_at=datetime.utcnow(),
+                updated_at=datetime.now(timezone.utc),
             )
             db.add(state)
             await db.flush()
@@ -57,13 +57,13 @@ class SchedulerEngine:
         state.current_position = (state.current_position + 1) % len(self.split)
         state.last_completed_date = date.today()
         state.consecutive_misses = 0
-        state.updated_at = datetime.utcnow()
+        state.updated_at = datetime.now(timezone.utc)
         await db.flush()
 
     async def shift_schedule_forward(self, db: AsyncSession, days: int = 1) -> None:
         state = await self._get_or_create_state(db)
         state.shift_offset = (state.shift_offset or 0) + days
-        state.updated_at = datetime.utcnow()
+        state.updated_at = datetime.now(timezone.utc)
         await db.flush()
 
     async def detect_missed_workout(self, db: AsyncSession) -> bool:

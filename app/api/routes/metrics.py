@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies import get_db_session
 from app.schemas.schemas import BodyMetricsCreate, BodyMetricsResponse
 from app.models.orm_models import BodyMetrics
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -15,7 +15,7 @@ async def log_body_metrics(request: BodyMetricsCreate, db: AsyncSession = Depend
         weight_kg=request.weight_kg,
         body_fat_pct=request.body_fat_pct,
         notes=request.notes,
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
     db.add(metrics)
     await db.flush()

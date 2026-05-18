@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.models.orm_models import WorkoutSession, ReadinessSnapshot
 from app.config.settings import settings
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 
@@ -55,7 +55,7 @@ class RecoveryEngine:
             readiness_score=readiness,
             fatigue_level=fatigue,
             recovery_score=round(recovery, 3),
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
         db.add(snap)
         await db.flush()

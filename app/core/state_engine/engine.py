@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.orm_models import ScheduleState, ReadinessSnapshot
 from app.config.settings import settings
-from datetime import datetime, date
+from datetime import datetime, timezone, date
 from typing import Optional
 
 
@@ -45,13 +45,13 @@ class StateEngine:
             row = ScheduleState(
                 current_position=self.state.current_split_position,
                 shift_offset=self.state.adaptive_adjustment,
-                updated_at=datetime.utcnow(),
+                updated_at=datetime.now(timezone.utc),
             )
             db.add(row)
         else:
             row.current_position = self.state.current_split_position
             row.shift_offset = self.state.adaptive_adjustment
-            row.updated_at = datetime.utcnow()
+            row.updated_at = datetime.now(timezone.utc)
         await db.flush()
 
     def update_fatigue(self, workout_completed: bool) -> None:

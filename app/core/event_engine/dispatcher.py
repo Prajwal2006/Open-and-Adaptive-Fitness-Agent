@@ -4,7 +4,7 @@ from typing import Callable, Awaitable
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.event_engine.events import FitnessEvent, FitnessEventType
 from app.models.orm_models import EventHistory
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 HandlerType = Callable[[FitnessEvent, AsyncSession], Awaitable[None]]
@@ -35,7 +35,7 @@ class EventDispatcher:
             event_type=event.event_type.value,
             payload_json=json.dumps(event.payload),
             processed=event.processed,
-            created_at=event.timestamp or datetime.utcnow(),
+            created_at=event.timestamp or datetime.now(timezone.utc),
         )
         db.add(history)
         await db.flush()

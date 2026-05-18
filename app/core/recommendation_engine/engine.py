@@ -4,7 +4,7 @@ from app.models.orm_models import Recommendation
 from app.core.progression_engine.engine import ProgressionEngine
 from app.core.recovery_engine.engine import RecoveryEngine
 from app.core.analytics_engine.engine import AnalyticsEngine
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 
@@ -74,7 +74,7 @@ class RecommendationEngine:
                 message=rec_data["message"],
                 priority=rec_data.get("priority", 1),
                 is_read=False,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
             db.add(rec)
         await db.flush()

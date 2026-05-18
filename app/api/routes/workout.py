@@ -10,7 +10,7 @@ from app.core.scheduler_engine.engine import SchedulerEngine
 from app.core.analytics_engine.engine import AnalyticsEngine
 from app.core.recovery_engine.engine import RecoveryEngine
 from app.models.orm_models import WorkoutSession, ExerciseLog, Recommendation
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 router = APIRouter()
 scheduler = SchedulerEngine()
@@ -32,7 +32,7 @@ async def log_workout(request: LogWorkoutRequest, db: AsyncSession = Depends(get
         completed=True,
         duration_minutes=request.duration_minutes,
         notes=request.notes,
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
     db.add(session)
     await db.flush()
@@ -46,7 +46,7 @@ async def log_workout(request: LogWorkoutRequest, db: AsyncSession = Depends(get
                 reps_completed=ex_data.reps_completed,
                 weight_kg=ex_data.weight_kg,
                 rpe=ex_data.rpe,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
             db.add(ex_log)
 
@@ -75,7 +75,7 @@ async def log_exercise(request: ExerciseLogCreate, db: AsyncSession = Depends(ge
         reps_completed=request.reps_completed,
         weight_kg=request.weight_kg,
         rpe=request.rpe,
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
     db.add(ex)
     await db.flush()
