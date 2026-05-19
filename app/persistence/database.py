@@ -1,3 +1,4 @@
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.pool import StaticPool
 from app.models.orm_models import Base
@@ -11,6 +12,15 @@ engine = create_async_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
+
+
+@event.listens_for(engine.sync_engine, "connect")
+def _set_sqlite_pragmas(dbapi_connection, connection_record) -> None:
+    cursor = dbapi_connection.cursor()
+    cursor.execute(f"PRAGMA busy_timeout={settings.SQLITE_BUSY_TIMEOUT_MS}")
+    cursor.execute(f"PRAGMA journal_mode={settings.SQLITE_JOURNAL_MODE}")
+    cursor.execute(f"PRAGMA synchronous={settings.SQLITE_SYNCHRONOUS}")
+    cursor.close()
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,

@@ -90,11 +90,38 @@ class RecommendationResponse(BaseModel):
 class NotificationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    user_id: str
     notif_type: str
     title: str
     message: str
+    severity: str
+    priority: int
+    status: str
+    is_read: bool
     sent: bool
     created_at: datetime
+
+
+class NotificationLifecycleRequest(BaseModel):
+    status: str
+
+
+class NotificationReadResponse(BaseModel):
+    id: int
+    is_read: bool
+    status: str
+
+
+class MemoryPreferenceRequest(BaseModel):
+    key: str
+    value: Any
+
+
+class AgentResponse(BaseModel):
+    type: str
+    status: str
+    payload: dict
+    orchestrator_safe: bool = True
 
 
 class HealthResponse(BaseModel):

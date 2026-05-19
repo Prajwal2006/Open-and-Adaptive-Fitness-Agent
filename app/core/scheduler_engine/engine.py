@@ -77,3 +77,15 @@ class SchedulerEngine:
             if yesterday_split != "Rest":
                 return True
         return False
+
+    async def inactivity_days(self, db: AsyncSession) -> int:
+        result = await db.execute(
+            select(WorkoutSession)
+            .where(WorkoutSession.completed == True)
+            .order_by(WorkoutSession.date.desc())
+            .limit(1)
+        )
+        last_session = result.scalar_one_or_none()
+        if last_session is None:
+            return 999
+        return (date.today() - last_session.date).days

@@ -9,6 +9,7 @@ from app.schemas.schemas import (
 from app.core.scheduler_engine.engine import SchedulerEngine
 from app.core.analytics_engine.engine import AnalyticsEngine
 from app.core.recovery_engine.engine import RecoveryEngine
+from app.core.events import Event, EventType, lightweight_dispatcher
 from app.models.orm_models import WorkoutSession, ExerciseLog, Recommendation
 from datetime import date, datetime, timezone
 
@@ -51,6 +52,12 @@ async def log_workout(request: LogWorkoutRequest, db: AsyncSession = Depends(get
             db.add(ex_log)
 
     await scheduler.mark_workout_complete(db, session.id)
+    await lightweight_dispatcher.emit(
+        Event(
+            event_type=EventType.PLAN_UPDATED,
+            payload={"session_id": session.id, "split_type": request.split_type},
+        )
+    )
     next_w = await scheduler.get_next_workout(db)
 
     return LogWorkoutResponse(
